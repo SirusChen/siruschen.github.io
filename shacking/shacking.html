@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>新年抽签</title>
+	<meta name="viewport" content="height=device-height, width=device-width, initial-scale = 1.0 ,minimum-scale = 1.0 ,maximum-scale = 1.0 ,user-scalable = no"/>
+
+	<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+	<link rel="stylesheet" type="text/css" href="css/tilteffect.css" />
+	<link rel="stylesheet" type="text/css" href="css/demo.css" />
+	<link rel="stylesheet" type="text/css" href="css/animate.min.css" />
+</head>
+<body>
+	<div class="container">
+		<h2 class="title">加载中···</h2>
+	</div>
+	<div class="cover"></div>
+</body>
+<script type="text/template" id="img">
+	<img src="img/{picName}" class="tilt-effect" data-tilt-options='{ "opacity" : 0.6, "bgfixed" : false, "extraImgs" : 3, "movement": { "perspective" : 5000, "translateX" : 50, "translateY" : 50, "translateZ" : 50 } }'>
+</script>
+<script src="js/jquery.min.js"></script>
+<script src="js/tiltfx.js"></script>
+<script src="js/lettering.min.js"></script>
+<script src="js/textillate.js"></script>
+<script>
+
+	var SHAKE_THRESHOLD = 1000
+	var last_update = 0
+	var x = y = z = last_x = last_y = last_z = 0
+	var canShake = true
+	var title = $('.container > .title')
+	window.onload = function () {
+		title.html('请摇动你的手机').textillate({
+			in: { effect: 'flash' }
+		})
+		window.addEventListener('devicemotion', deviceMotionHandler, false)
+		// TiltFx.init()
+	}
+	function deviceMotionHandler(eventData) {
+		var acceleration = eventData.accelerationIncludingGravity
+		var curTime = new Date().getTime()
+		if ((curTime - last_update) > 100 && canShake) {
+			var diffTime = curTime - last_update
+			last_update = curTime
+			x = acceleration.x
+			y = acceleration.y
+			z = acceleration.z
+			var speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000
+			if (speed > SHAKE_THRESHOLD) {
+				canShake = false
+				var num = Math.floor(Math.random() * 7 + 1)
+				$('.title').html('【上上签{num}】'.replace('{num}', num))
+				$('.container').append($('#img').html()
+					.replace('{picName}', '{num}.jpg')
+					.replace('{num}', num))
+				TiltFx.init()
+			}
+			last_x = x
+			last_y = y
+			last_z = z
+		}
+	}
+
+
+</script>
+</html>
